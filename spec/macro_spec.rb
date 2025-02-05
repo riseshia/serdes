@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe "Macro" do
-  class MacroDatabase
+  class PascalDatabase
     include Serdes
 
     rename_all_attributes :PascalCase
@@ -9,34 +9,77 @@ RSpec.describe "Macro" do
     attribute :user_name, String
   end
 
-  describe "deserialize" do
-    let(:database_hash) do
-      {
-        "UserName" => "mysql"
-      }
-    end
+  class SymbolizedDatabase
+    include Serdes
 
-    it "does not raise error" do
-      expect {
-        MacroDatabase.from(database_hash)
-      }.not_to raise_error
-    end
+    symbolize_all_keys
 
-    it "deserialize correct" do
-      database = MacroDatabase.from(database_hash)
-      expect(database.user_name).to eq("mysql")
-    end
+    attribute :user_name, String
   end
 
-  describe "serialize" do
-    let(:database) do
-      MacroDatabase.new.tap do |database|
-        database.user_name = "mysql"
+  describe "rename_all_attributes" do
+    describe "deserialize" do
+      let(:database_hash) do
+        {
+          "UserName" => "mysql"
+        }
+      end
+
+      it "does not raise error" do
+        expect {
+          PascalDatabase.from(database_hash)
+        }.not_to raise_error
+      end
+
+      it "deserialize correct" do
+        database = PascalDatabase.from(database_hash)
+        expect(database.user_name).to eq("mysql")
       end
     end
 
-    it "serialize to hash correct" do
-      expect(database.to_hash).to eq({ "UserName" => "mysql" })
+    describe "serialize" do
+      let(:database) do
+        PascalDatabase.new.tap do |database|
+          database.user_name = "mysql"
+        end
+      end
+
+      it "serialize to hash correct" do
+        expect(database.to_hash).to eq({ "UserName" => "mysql" })
+      end
+    end
+  end
+
+  describe "symbolized_all_keys" do
+    describe "deserialize" do
+      let(:database_hash) do
+        {
+          user_name: "mysql"
+        }
+      end
+
+      it "does not raise error" do
+        expect {
+          SymbolizedDatabase.from(database_hash)
+        }.not_to raise_error
+      end
+
+      it "deserialize correct" do
+        database = SymbolizedDatabase.from(database_hash)
+        expect(database.user_name).to eq("mysql")
+      end
+    end
+
+    describe "serialize" do
+      let(:database) do
+        SymbolizedDatabase.new.tap do |database|
+          database.user_name = "mysql"
+        end
+      end
+
+      it "serialize to hash correct" do
+        expect(database.to_hash).to eq({ user_name: "mysql" })
+      end
     end
   end
 end

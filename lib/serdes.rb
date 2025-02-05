@@ -153,6 +153,10 @@ module Serdes
       @_serde_rename_strategy = strategy
     end
 
+    def symbolize_all_keys
+      @_serde_symbolized_all_keys = true
+    end
+
     def from(obj)
       Functions.from__proxy(self, obj)
     end
@@ -161,6 +165,8 @@ module Serdes
       new.tap do |instance|
         _serde_attrs.each_value do |attr|
           key = attr.serialized_name(_serde_rename_strategy)
+          key = key.to_sym if _serde_symbolized_all_keys
+
           serialized_value = hash[key]
 
           value = Functions.from__proxy(attr.attr_type, serialized_value)
@@ -181,12 +187,17 @@ module Serdes
     private def _serde_rename_strategy
       @_serde_rename_strategy ||= :snake_case
     end
+
+    private def _serde_symbolized_all_keys
+      @_serde_symbolized_all_keys ||= false
+    end
   end
 
   module InstanceMethods
     def to_hash
       self.class.__send__(:_serde_attrs).each_with_object({}) do |(name, attr), hash|
         key = attr.serialized_name(self.class.__send__(:_serde_rename_strategy))
+        key = key.to_sym if self.class.__send__(:_serde_symbolized_all_keys)
         value = __send__(name)
 
         hash[key] =

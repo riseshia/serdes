@@ -73,6 +73,7 @@ User.from(user_hash) # => raise Serdes::TypeError
 
 - `rename_all_attributes`: Rename all attributes when serializing and deserializing.
   - Supported: `:snake_case`, `:PascalCase`
+- `symbolize_all_keys`: Symbolize all keys when serializing and deserializing Hash, and vice versa.
 
 ## Development
 
