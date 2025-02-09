@@ -5,6 +5,7 @@ RSpec.describe "Serialize" do
     include Serdes
 
     attribute :adapter, String
+    attribute :some_flag, Boolean
   end
 
   class Table
@@ -37,11 +38,12 @@ RSpec.describe "Serialize" do
       let(:database) do
         Database.new.tap do |database|
           database.adapter = "mysql"
+          database.some_flag = true
         end
       end
 
       it "serialize to hash correct" do
-        expect(database.to_hash).to eq({ "adapter" => "mysql" })
+        expect(database.to_hash).to eq({ "adapter" => "mysql", "some_flag" => true })
       end
     end
 

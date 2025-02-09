@@ -30,7 +30,11 @@ module Serdes
     end
 
     def permit?(value)
-      @exact_type == value.class
+      if @exact_type == Boolean
+        value == true || value == false
+      else
+        @exact_type == value.class
+      end
     end
 
     def to_s

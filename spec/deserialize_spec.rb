@@ -5,6 +5,7 @@ RSpec.describe "Deserialize" do
     include Serdes
 
     attribute :adapter, String
+    attribute :some_flag, Boolean
   end
 
   class Table
@@ -36,7 +37,8 @@ RSpec.describe "Deserialize" do
     context "simple case" do
       let(:database_hash) do
         {
-          "adapter" => "mysql"
+          "adapter" => "mysql",
+          "some_flag" => true,
         }
       end
 
@@ -49,6 +51,7 @@ RSpec.describe "Deserialize" do
       it "deserialize correct" do
         database = Database.from(database_hash)
         expect(database.adapter).to eq("mysql")
+        expect(database.some_flag).to be true
       end
 
       it "raises error" do
