@@ -104,6 +104,18 @@ module Serdes
       @options = options
     end
 
+    def permit?(value)
+      return false if !attr_type.permit?(value)
+
+      return true if @options[:only].nil?
+
+      if @options[:only].include?(value)
+        true
+      else
+        raise TypeError, "Wrong value for #{class_name}##{name}. Expected value is #{@options[:only]}, got '#{value}'."
+      end
+    end
+
     def serialized_name(rename_strategy = nil)
       if rename_strategy && rename_strategy != :snake_case
         Functions._serde_rename_strategy_func_fetch(:snake_case, rename_strategy).call(@name)
@@ -266,25 +278,9 @@ module Serdes
     end
 
     def validate_type!(attr, value)
-      valid = attr.attr_type.permit?(value)
-      return if valid
-
-      actual_type = humanize_type(value)
+      return if attr.permit?(value)
 
       raise TypeError, "Wrong type for #{attr.class_name}##{attr.name}. Expected type #{attr.attr_type}, got #{value.class} (val: '#{value}')."
-    end
-
-    def humanize_type(value)
-      if value.is_a?(Array)
-        "array(" + value.map { |el| humanize_type(el) }.join(", ") + ")"
-      else
-        case value
-        when NilClass then "nil"
-        when TrueClass then "boolean"
-        when FalseClass then "boolean"
-        else value.class.to_s
-        end
-      end
     end
 
     def skip_to_hash?(value)

@@ -1,5 +1,9 @@
 ## [Unreleased]
 
+## [0.1.3] - 2025-02-12
+
+- Add `only` option which adds value constraint.
+
 ## [0.1.2] - 2025-02-09
 
 - Fix `Boolean` type not working.

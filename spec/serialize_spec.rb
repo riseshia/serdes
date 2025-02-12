@@ -4,7 +4,7 @@ RSpec.describe "Serialize" do
   class Database
     include Serdes
 
-    attribute :adapter, String
+    attribute :adapter, String, only: %w[mysql postgresql]
     attribute :some_flag, Boolean
   end
 

@@ -34,6 +34,7 @@ class User
   attribute :profile, optional(String)
   attribute :tags, array(String)
   attribute :has_pet, Boolean
+  attribute :plan, String, only: ["free", "premium"]
 end
 
 user_hash = {

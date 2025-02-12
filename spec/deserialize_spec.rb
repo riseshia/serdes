@@ -4,7 +4,7 @@ RSpec.describe "Deserialize" do
   class Database
     include Serdes
 
-    attribute :adapter, String
+    attribute :adapter, String, only: %w[mysql postgresql]
     attribute :some_flag, Boolean
   end
 
@@ -57,7 +57,13 @@ RSpec.describe "Deserialize" do
       it "raises error" do
         expect {
           Database.from(database_hash.merge("adapter" => 1))
-        }.to raise_error(Serdes::TypeError)
+        }.to raise_error(Serdes::TypeError, "Wrong type for Database#adapter. Expected type String, got Integer (val: '1').")
+      end
+
+      it "raises error by only" do
+        expect {
+          Database.from(database_hash.merge("adapter" => "sqlite3"))
+        }.to raise_error(Serdes::TypeError, %q|Wrong value for Database#adapter. Expected value is ["mysql", "postgresql"], got 'sqlite3'.|)
       end
     end
 
@@ -131,7 +137,7 @@ RSpec.describe "Deserialize" do
       it "raises error" do
         expect {
           Config.from(config_hash.merge("table_names" => ["users", 1]))
-        }.to raise_error(Serdes::TypeError)
+        }.to raise_error(Serdes::TypeError, %q|Wrong type for Config#table_names. Expected type array(String), got Array (val: '["users", 1]').|)
       end
     end
 
@@ -161,7 +167,7 @@ RSpec.describe "Deserialize" do
 
           expect {
             NestedTags.from({ "tags" => [1, 2] })
-          }.to raise_error(Serdes::TypeError)
+          }.to raise_error(Serdes::TypeError, %q|Wrong type for NestedTags#tags. Expected type optional(array(String)), got Array (val: '[1, 2]').|)
         end
       end
 
