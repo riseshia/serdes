@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+## [0.1.4]
+
 - Add skip serializing attribute feature.
 
 ## [0.1.3] - 2025-02-12
