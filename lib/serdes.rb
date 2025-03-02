@@ -102,6 +102,11 @@ module Serdes
       @name = name
       @attr_type = attr_type
       @options = options
+
+      if @options[:skip_serializing_if_nil]
+        @options.delete(:skip_serializing_if_nil)
+        @options[:skip_serializing_if] = ->(v) { v.nil? }
+      end
     end
 
     def permit?(value)
@@ -214,7 +219,12 @@ module Serdes
       self.class.__send__(:_serde_attrs).each_with_object({}) do |(name, attr), hash|
         key = attr.serialized_name(self.class.__send__(:_serde_rename_strategy))
         key = key.to_sym if self.class.__send__(:_serde_symbolized_all_keys)
+
+        next if attr.options[:skip_serializing]
+
         value = __send__(name)
+
+        next if attr.options[:skip_serializing_if] && attr.options[:skip_serializing_if].call(value)
 
         hash[key] =
           if value.respond_to?(:to_hash)

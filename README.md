@@ -72,9 +72,20 @@ User.from(user_hash) # => raise Serdes::TypeError
 
 ### Macro
 
+#### Global macro
+
 - `rename_all_attributes`: Rename all attributes when serializing and deserializing.
   - Supported: `:snake_case`, `:PascalCase`
 - `symbolize_all_keys`: Symbolize all keys when serializing and deserializing Hash, and vice versa.
+
+#### Attribute macro
+
+You can also use macro for each attribute by specifying 3rd argument of `attribute`.
+
+- `only`: Only allow given values.
+- `skip_serializing`: Skip serializing attribute by setting truthy value. it will ignore `skip_serializing_if`, `skip_serializing_if_nil` when this set.
+- `skip_serializing_if`: Skip serializing if given proc call returns true.
+- `skip_serializing_if_nil`: alias of `skip_serializing_if: ->(v) { v.nil? }`. It will ignore `skip_serializing_if` when this set.
 
 ## Development
 

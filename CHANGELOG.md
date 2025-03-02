@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+- Add skip serializing attribute feature.
+
 ## [0.1.3] - 2025-02-12
 
 - Add `only` option which adds value constraint.
