@@ -61,7 +61,7 @@ User.from(user_hash) # => raise Serdes::TypeError
 - `<class>.from(obj)`: Deserialize object to <class> instance.
   - `from` will call `from_<obj.class>` method if it exists. if not, it returns obj as it is.
 - `<class>#to_hash`: Serialize <class> instance to Hash.
-  - There is no support for serializaion, as only you need to do is just implement `to_<class>` method where you want.
+  - There is no support for serialization, as only you need to do is just implement `to_<class>` method where you want.
 
 ### Types
 
