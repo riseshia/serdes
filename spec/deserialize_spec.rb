@@ -33,6 +33,17 @@ RSpec.describe "Deserialize" do
     attribute :tags, array(optional(String))
   end
 
+  class User
+    include Serdes
+
+    attribute :name, String
+    attribute :age, Integer
+    attribute :profile, optional(String)
+    attribute :tags, array(String)
+    attribute :has_pet, Boolean, default: false
+    attribute :plan, String, only: ["free", "premium"], default: "free"
+  end
+
   describe "deserialize" do
     context "simple case" do
       let(:database_hash) do
@@ -233,6 +244,82 @@ RSpec.describe "Deserialize" do
         it "deserialize correct" do
           optional_array = OptionalArray.from(optional_array_hash)
           expect(optional_array.tags).to eq([nil])
+        end
+      end
+    end
+
+    context "default value" do
+      context "when attribute is provided" do
+        let(:user_hash) do
+          {
+            "name" => "John",
+            "age" => 30,
+            "tags" => ["developer", "ruby"],
+            "has_pet" => true,
+            "plan" => "premium"
+          }
+        end
+
+        it "uses provided value instead of default" do
+          user = User.from(user_hash)
+          expect(user.has_pet).to be true
+          expect(user.plan).to eq("premium")
+        end
+      end
+
+      context "when attribute is missing" do
+        let(:user_hash) do
+          {
+            "name" => "Jane",
+            "age" => 25,
+            "tags" => ["designer"]
+          }
+        end
+
+        it "uses default value" do
+          user = User.from(user_hash)
+          expect(user.name).to eq("Jane")
+          expect(user.age).to eq(25)
+          expect(user.tags).to eq(["designer"])
+          expect(user.has_pet).to be false
+          expect(user.plan).to eq("free")
+        end
+      end
+
+      context "when default value with only constraint" do
+        let(:user_hash) do
+          {
+            "name" => "Bob",
+            "age" => 35,
+            "tags" => []
+          }
+        end
+
+        it "uses default value that satisfies only constraint" do
+          user = User.from(user_hash)
+          expect(user.plan).to eq("free")
+        end
+      end
+
+      context "when default value has wrong type" do
+        it "raises error at class definition time" do
+          expect {
+            Class.new do
+              include Serdes
+              attribute :count, Integer, default: "wrong"
+            end
+          }.to raise_error(Serdes::TypeError, /Wrong type for default value/)
+        end
+      end
+
+      context "when default value violates only constraint" do
+        it "raises error at class definition time" do
+          expect {
+            Class.new do
+              include Serdes
+              attribute :status, String, only: ["active", "inactive"], default: "pending"
+            end
+          }.to raise_error(Serdes::TypeError, /Wrong value for/)
         end
       end
     end

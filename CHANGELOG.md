@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+- Add `default` option for attribute definitions.
+
 ## [0.1.4]
 
 - Add skip serializing attribute feature.
