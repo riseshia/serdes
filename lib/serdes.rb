@@ -107,6 +107,20 @@ module Serdes
         @options.delete(:skip_serializing_if_nil)
         @options[:skip_serializing_if] = ->(v) { v.nil? }
       end
+
+      # Validate default value type if provided
+      if @options.key?(:default)
+        default_value = @options[:default]
+        # Use permit? to validate both type and only constraint
+        # permit? will raise TypeError if only constraint is violated
+        unless @attr_type.permit?(default_value)
+          raise TypeError, "Wrong type for default value of #{class_name}##{name}. Expected type #{@attr_type}, got #{default_value.class} (val: '#{default_value}')."
+        end
+        # Check only constraint
+        if @options[:only] && !@options[:only].include?(default_value)
+          raise TypeError, "Wrong value for #{class_name}##{name}. Expected value is #{@options[:only]}, got '#{default_value}'."
+        end
+      end
     end
 
     def permit?(value)
@@ -188,9 +202,15 @@ module Serdes
           key = attr.serialized_name(_serde_rename_strategy)
           key = key.to_sym if _serde_symbolized_all_keys
 
-          serialized_value = hash[key]
-
-          value = Functions.from__proxy(attr.attr_type, serialized_value)
+          if hash.key?(key)
+            serialized_value = hash[key]
+            value = Functions.from__proxy(attr.attr_type, serialized_value)
+          elsif attr.options.key?(:default)
+            value = attr.options[:default]
+          else
+            serialized_value = hash[key]
+            value = Functions.from__proxy(attr.attr_type, serialized_value)
+          end
 
           instance.__send__("#{attr.name}=", value)
         end
