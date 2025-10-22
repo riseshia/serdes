@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+## [0.1.5]
+
 - Add `default` option for attribute definitions.
 
 ## [0.1.4]
